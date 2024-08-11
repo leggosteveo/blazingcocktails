@@ -1,0 +1,83 @@
+﻿@inject CocktailStateService CocktailStateService;
+
+<input type="text" @bind-value="searchTerm" @onkeyup="SearchChanged" placeholder="Search cocktails" />
+
+@if (filteredCocktails != null && filteredCocktails.Any())
+{
+    <BlazorBootstrap.Accordion>
+        @foreach (var cocktail in filteredCocktails)
+        {
+            <BlazorBootstrap.AccordionItem Title="@cocktail.Name">
+                <Content>
+                    <h4>Ingredients</h4>
+                    <p>@cocktail.Ingredients</p>
+                    <h4>Recipe</h4>
+                    <p>@cocktail.Recipe</p>
+                </Content>
+            </BlazorBootstrap.AccordionItem>
+        }
+    </BlazorBootstrap.Accordion>
+}
+else
+{
+    <h2>No Cocktails</h2>
+}
+
+@code {
+    private string searchTerm = "";
+    private List<Cocktail>? CocktailList;
+    private List<Cocktail>? filteredCocktails;
+
+    //[Inject]
+    //private CocktailStateService? CocktailStateService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Console.WriteLine("Trying to fetch...");
+
+        try
+        {
+            await GetCocktailsAsync();
+            FilterCocktails();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading liquors: {ex.Message}");
+            CocktailList = new List<Cocktail>();
+        }
+    }
+
+
+    private async Task GetCocktailsAsync()
+    {
+        Console.WriteLine("Fetching cocktails...");
+        CocktailList = await CocktailStateService.GetAllCocktailsAsync();
+        Console.WriteLine($"Fetched {CocktailList?.Count} cocktails.");
+    }
+
+    private void FilterCocktails()
+    {
+        Console.WriteLine("Filtering cocktails...");
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            filteredCocktails = CocktailList?.Where(cocktail =>
+                cocktail.Name.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0
+            ).ToList();
+        }
+        else
+        {
+            // If searchTerm is empty, show all cocktails
+            filteredCocktails = CocktailList;
+        }
+        Console.WriteLine($"Filtered cocktails count: {filteredCocktails?.Count}");
+    }
+
+    private void SearchChanged()
+    {
+        // Call FilterCocktails whenever the search term changes
+        FilterCocktails();
+    }
+}
+
+

@@ -1,0 +1,56 @@
+﻿@page "/liquors/{Name}";
+@inject LiquorStateService CocktailStateService;
+@inject CocktailStateService CocktailStateService;
+
+
+
+<PageTitle>@liquor?.Name</PageTitle>
+<h1 class="liquor-name-title">@liquor?.Name</h1>
+<p class="liquor-description"> @liquor?.Description</p>
+<h2>Cocktails</h2>
+
+@if (liquor != null)
+{<BlazorBootstrap.Accordion>
+    @if (cocktails != null)
+        {
+        @foreach (var cocktail in cocktails)
+            {
+
+            <BlazorBootstrap.AccordionItem Title="@cocktail.Name">
+                <Content>
+                    <h4>Ingredients</h4>
+                    <ul>
+                        <p>@cocktail.Ingredients</p>
+                            
+
+                    </ul>
+                    <h4>Recipe</h4>
+                    <p>@cocktail.Recipe</p>
+                </Content>
+            </BlazorBootstrap.AccordionItem>
+
+            }}
+        else { }
+    </BlazorBootstrap.Accordion>
+}
+else { }
+
+@code {
+    [Parameter]
+    public string? Name { get; set; }
+
+    private List<Cocktail>? CocktailList;
+    private IEnumerable<Cocktail>? cocktails;
+    private Liquor?liquor;
+
+    [Inject]
+    private LiquorStateService? LiquorStateService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize list of liquors
+        liquor = await LiquorStateService?.GetSingleLiquorAsync(Name);
+        CocktailList = await CocktailStateService.GetAllCocktailsAsync();
+        cocktails = CocktailList.Where(cocktail => cocktail.Base == Name).ToList();
+    }
+}

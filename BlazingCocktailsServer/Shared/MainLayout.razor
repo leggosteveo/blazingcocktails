@@ -1,0 +1,103 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    @*<Sidebar @ref="sidebar"
+        ImageSrc="blazingcocktails_icon.png"
+        Title="Blazing Cocktails"
+        DataProvider="SidebarDataProvider" />*@
+
+    <main>
+        @*<div class="top-row px-4">
+
+            </div>*@
+        <nav class="navbar navbar-dark navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="blazingcocktails_icon.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+                    Blazing Cocktails
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        @if (navItems != null)
+                        {
+                            @foreach (var item in navItems)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="@item.Href">@item.Text</a>
+                                </li>
+                            }
+                        }
+                        else { }
+                    </ul>
+                    @*<li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dropdown
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                        </li>*@
+
+
+                    @*<form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>*@
+
+
+                </div>
+            </div>
+        </nav>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private Sidebar sidebar = default!;
+    private IEnumerable<NavItem> navItems = default!;
+
+    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+{
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+            //new NavItem { Id = "2", Href = "/counter", IconName = IconName.PlusSquareFill, Text = "Counter"},
+            //new NavItem { Id = "3", Href = "/fetchdata", IconName = IconName.Table, Text = "Fetch Data"},
+            new NavItem { Id = "4", Href = "/cocktails", IconName = IconName.CupStraw, Text = "Cocktails"},
+        };
+
+        return navItems;
+    }
+
+    protected override void OnInitialized()
+    {
+        // Initialize list of navItems
+        navItems = GetNavItems();
+    }
+}

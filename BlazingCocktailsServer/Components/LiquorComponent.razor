@@ -1,0 +1,49 @@
+﻿@inject LiquorStateService LiquorStateService;
+
+
+@if (LiquorList != null)
+{
+    @foreach (var liquor in LiquorList)
+    {
+        <a class="btn link-to-liquor" href=@($"/liquors/{liquor.Name}") @onclick="() => SetSelectedLiquor(liquor)">@liquor.Name</a>
+    }
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Inject]
+    private NavigationManager? Navigation { get; set; }
+
+    private List<Liquor>? LiquorList;
+    private List<Cocktail>? CocktailsList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Trying to fetch...");
+            await GetLiquorsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading liquors: {ex.Message}");
+            LiquorList = new List<Liquor>();
+        }
+    }
+
+    private async Task GetLiquorsAsync()
+    {
+        // Return the result of AllLiquors
+        LiquorList = await LiquorStateService.GetAllLiquorsAsync();
+    }
+
+    private void SetSelectedLiquor(Liquor liquor)
+    {
+        LiquorStateService.SelectedLiquor = liquor;
+    }
+
+
+}
